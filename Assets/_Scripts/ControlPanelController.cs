@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class ControlPanelController : MonoBehaviour
 {
@@ -15,9 +17,17 @@ public class ControlPanelController : MonoBehaviour
     public float timer = 0.0f;
     public bool isOnScreen = false;
 
+    [Header("Player Settings")]
+    public PlayerBehaviour player;
     public CameraController playerCamera;
 
+
     public Pauseable pausable;
+
+    [Header("Scene Data")]
+    public SceneDataSO sceneData;
+
+    public GameObject gameStateElement;
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +37,8 @@ public class ControlPanelController : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         rectTransform.anchoredPosition = offScreenPosition;
         timer = 0.0f;
+
+        player = FindObjectOfType<PlayerBehaviour>();
     }
 
     // Update is called once per frame
@@ -40,11 +52,14 @@ public class ControlPanelController : MonoBehaviour
         if (isOnScreen)
         {
             MoveControlPanelDown();
+            
         }
         else
         {
-            MoveControlPanelUp();
+            MoveControlPanelUp();  
         }
+
+        gameStateElement.SetActive(pausable.isGamePaused);
     }
 
     void ToggleControlPanel()
@@ -63,6 +78,8 @@ public class ControlPanelController : MonoBehaviour
             //Cursor.lockState = CursorLockMode.Locked;
             playerCamera.enabled = true;
         }
+
+       
     }
 
     private void MoveControlPanelDown()
@@ -91,5 +108,20 @@ public class ControlPanelController : MonoBehaviour
     public void OnControlButtonPressed()
     {
         ToggleControlPanel();
+    }
+
+    public void OnLoadButtonPressed()
+    {
+        player.controller.enabled = false;
+        player.transform.position = sceneData.playerPosition;
+        player.controller.enabled = true;
+        player.health = sceneData.playerHealth;
+        player.healthBar.SetHealth(sceneData.playerHealth);
+    }
+
+    public void OnSaveButtonPressed()
+    {
+        sceneData.playerPosition = player.transform.position;
+        sceneData.playerHealth = player.health;
     }
 }
